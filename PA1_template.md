@@ -19,9 +19,14 @@ output:
 ---
 
 
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.width=12, fig.height=8, fig.path='Figs/',
+                      echo=TRUE, warning=FALSE, message=FALSE)
+```
+
 ## Loading and preprocessing the data
 First, I will remove all variables from the environment
-```{r}
+```{r process_data} 
 activity <- read.csv("activity.csv")
 activity$date <- as.Date(activity$date)
 act_day <- group_by(activity,by=date)
@@ -32,7 +37,7 @@ meanStepsPerInterval <- aggregate(steps ~ interval, data=activity,
 ```
 
 ##Make the histogram of the total number of steps per day
-```{r, echo=FALSE}
+```{r total_steps_hist, echo=FALSE}
 hist(sumStepsPerDay$steps, breaks=10, main="Total number of steps per day",
      xlab="Steps per day")
 
@@ -40,7 +45,7 @@ hist(sumStepsPerDay$steps, breaks=10, main="Total number of steps per day",
 ## What is mean total number of steps taken per day?
 
 The mean and median steps are calculated as follows:  
-```{r}
+```{r, mean_steps}
 mean(sumStepsPerDay$steps, na.rm=TRUE)
 median(sumStepsPerDay$steps, na.rm=TRUE)
 
@@ -56,7 +61,7 @@ The below plot addresses the following items:
 1.  Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 2.  Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+```{r avg_daily_patt}
 plot(steps ~ interval, data=meanStepsPerInterval, 
        type="l", grid=TRUE, ylab="Number of steps", 
        xlab="5-min. intervals from midnight", 
@@ -71,7 +76,7 @@ plot(steps ~ interval, data=meanStepsPerInterval,
 ## Imputing missing values
 
 1. Calculate & Report The Number of Missing Values
-```{r}
+```{r missing_vals}
  sum(is.na(activity$steps))
  sum(is.na(activity$date))
  sum(is.na(activity$interval))
@@ -82,7 +87,7 @@ plot(steps ~ interval, data=meanStepsPerInterval,
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+```{r replace_missing}
 activity_replace <- activity
 for (i in 1:nrow(activity_replace)){
         if (is.na(activity_replace$steps[i])){
@@ -94,7 +99,7 @@ for (i in 1:nrow(activity_replace)){
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+```{r hist_missing}
 sumStepsPerDayMissing <- aggregate(steps ~ date, 
                                    data=activity_replace, FUN="sum", na.exclude=T)
 hist(sumStepsPerDayMissing$steps, breaks=10, main="Total number of steps per day, missing values edited",
@@ -103,7 +108,7 @@ hist(sumStepsPerDayMissing$steps, breaks=10, main="Total number of steps per day
 
 The mean and median for the new dataset are computed below and do not differ very much from the mean and emdian in the original dataset
 
-```{r}
+```{r new_stats}
 mean(sumStepsPerDayMissing$steps, na.rm=TRUE)
 median(sumStepsPerDayMissing$steps, na.rm=TRUE)
 ```
@@ -112,15 +117,19 @@ median(sumStepsPerDayMissing$steps, na.rm=TRUE)
 
 1. Create a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 2. Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
-```{r}
+```{r weekday}
 activity_replace$day <- "weekday"
 activity_replace$day[weekdays(as.Date(activity_replace$date), abb=T) %in% c("Sat","Sun")] <- "weekend"
 meanStepsPerIntervalNoMissingDay <- aggregate(steps ~ interval + day, 
                                               data=activity_replace, FUN="mean")
+
+xyplot(steps ~ interval | day, data=meanStepsPerIntervalNoMissingDay, 
+       type="l", grid=T, layout=c(1,2), ylab="Number of steps", 
+       xlab="5-min. intervals from midnight",
+       main="Average  5-min. activity intervals: Weekdays vs. Weekends")
 ```
 
-```{r, include=FALSE}
-   # add this chunk to end of mycode.rmd
-   file.rename(from="PA1_template.md", 
-               to="README.md")
-```
+###```{r, include=FALSE}
+###   file.rename(from="PA1_template.Rmd", 
+###               to="README.md")
+###```
