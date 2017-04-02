@@ -129,7 +129,7 @@ xyplot(steps ~ interval | day, data=meanStepsPerIntervalNoMissingDay,
        main="Average  5-min. activity intervals: Weekdays vs. Weekends")
 ```
 
-#```{r, include=FALSE}
-#  file.rename(from="PA1_template.Rmd", 
-#               to="PA1_tempate.md")
-#```
+###```{r, include=FALSE}
+###   file.rename(from="PA1_template.Rmd", 
+###               to="README.md")
+###```
